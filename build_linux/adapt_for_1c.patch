@@ -1,0 +1,78 @@
+Only in pdf.js-2.6.347: build
+diff -ur pdf.js-2.6.347-old/external/webL10n/l10n.js pdf.js-2.6.347/external/webL10n/l10n.js
+--- pdf.js-2.6.347-old/external/webL10n/l10n.js	2020-09-03 23:11:23.000000000 +0300
++++ pdf.js-2.6.347/external/webL10n/l10n.js	2025-04-23 19:55:17.758210940 +0300
+@@ -100,6 +100,8 @@
+     onSuccess = onSuccess || function _onSuccess(data) {};
+     onFailure = onFailure || function _onFailure() {};
+ 
++    onFailure(); return;
++
+     var xhr = new XMLHttpRequest();
+     xhr.open('GET', url, gAsyncResourceLoading);
+     if (xhr.overrideMimeType) {
+Only in pdf.js-2.6.347: node_modules
+diff -ur pdf.js-2.6.347-old/web/app.js pdf.js-2.6.347/web/app.js
+--- pdf.js-2.6.347-old/web/app.js	2020-09-03 23:11:23.000000000 +0300
++++ pdf.js-2.6.347/web/app.js	2025-04-24 04:58:05.740996444 +0300
+@@ -885,6 +885,21 @@
+     );
+   },
+ 
++  async openBase64(base64String) {
++    // https://stackoverflow.com/a/21797381
++    function base64ToArrayBuffer(base64) {
++      var binaryString = atob(base64);
++      var bytes = new Uint8Array(binaryString.length);
++      for (var i = 0; i < binaryString.length; i++) {
++          bytes[i] = binaryString.charCodeAt(i);
++      }
++      return bytes.buffer;
++    }
++
++    this.open(base64ToArrayBuffer(base64String))
++  },
++
++
+   download({ sourceEventType = "download" } = {}) {
+     function downloadByUrl() {
+       downloadManager.downloadUrl(url, filename);
+@@ -2073,6 +2088,9 @@
+     true
+   );
+ 
++  document.getElementById("1cReadyCallback").click();
++  return;
++  
+   try {
+     webViewerOpenFileViaURL(file);
+   } catch (reason) {
+Only in pdf.js-2.6.347/web: locale
+diff -ur pdf.js-2.6.347-old/web/viewer.html pdf.js-2.6.347/web/viewer.html
+--- pdf.js-2.6.347-old/web/viewer.html	2020-09-03 23:11:23.000000000 +0300
++++ pdf.js-2.6.347/web/viewer.html	2025-04-23 20:36:18.597647582 +0300
+@@ -429,5 +429,6 @@
+ 
+     </div> <!-- outerContainer -->
+     <div id="printContainer"></div>
++    <button id="1cReadyCallback" style="display: none"></button>
+   </body>
+ </html>
+diff -ur pdf.js-2.6.347-old/web/viewer.js pdf.js-2.6.347/web/viewer.js
+--- pdf.js-2.6.347-old/web/viewer.js	2020-09-03 23:11:23.000000000 +0300
++++ pdf.js-2.6.347/web/viewer.js	2025-04-24 04:56:32.401028670 +0300
+@@ -233,11 +233,13 @@
+   }
+ }
+ 
++
+ if (
+   document.readyState === "interactive" ||
+   document.readyState === "complete"
+ ) {
+   webViewerLoad();
+ } else {
+-  document.addEventListener("DOMContentLoaded", webViewerLoad, true);
++  //document.addEventListener("DOMContentLoaded", webViewerLoad, true);
++  window.addEventListener("load", webViewerLoad)
+ }
