@@ -1,5 +1,7 @@
 # PDF.epf
 
+![illustration](https://github.com/user-attachments/assets/902e64a8-beb3-4a5f-a638-c930dcebfb94)
+
 Відображення файлів PDF безпосередньо в 1С для старих платформ
 
 ## Підтримувані платформи
